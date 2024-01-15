@@ -1,11 +1,13 @@
 #include <iostream>
 #include <string>
+#include <map>
 #include <vector>
 #include <cassert>
 #include <fstream>
 #include "TRIE.cpp"
 #include "automata.cpp"
 #include "token.cpp"
+#include "sintaxis.cpp"
 using namespace std;
 
 int main(int argc,char *argv[]){
@@ -19,6 +21,7 @@ int main(int argc,char *argv[]){
     nombres.push_back("NUMERO");
     nombres.push_back("IDENTIFICADOR");
     nombres.push_back("CADENA");
+
     arbol->inicializa(cantidadTokens , reservadas);
     arbol -> inicializa(cantidadTokens , simbolos);
     /*for(int i = 1; i < argc ; i++){
@@ -40,10 +43,17 @@ int main(int argc,char *argv[]){
         while(getline(fin,lecturas)){
             existe_Error = evalua(lecturas,arbol,cantidadTokens,nombres,comentariote,registro_Tokens);
             errores_general|=existe_Error;
-            if(existe_Error)continue;
-            registro_Tokens.recorre();
+            if(existe_Error){
+                cout<<"El programa tiene errores\n";
+                return 0;
+            };
+            //registro_Tokens.recorre();
         }
+        hayErrores = 0;
+        parsear(registro_Tokens,registro_Tokens.indice_inicial,registro_Tokens.indice_final,nombres);
         if(errores_general)cout<<"El programa termino con errores\n";
+        if(hayErrores)return 0;
+        
         else cout<<"El programa termino exitosamente\n";
     }else{
         string lectura;
