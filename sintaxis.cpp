@@ -495,8 +495,7 @@ void statement(token &recorrido, int &actual, int &numTokens,vector<string> &nom
     if(hayErrores)return;
     if(esteToken == inverso.TRUE || esteToken == inverso.FALSE || esteToken == inverso.NULO
         || esteToken == inverso.NUMERO || esteToken == inverso.CADENA || esteToken == inverso.IDENTIFICADOR
-        || esteToken == inverso.PARENTESISABIERTO || esteToken == inverso.BANG || esteToken == inverso.BANG
-        || esteToken == inverso.RESTA){
+        || esteToken == inverso.PARENTESISABIERTO || esteToken == inverso.BANG || esteToken == inverso.RESTA){
         
         expr_stmt(recorrido,actual,numTokens,nombres);
     }else if(esteToken == inverso.FOR){
@@ -511,9 +510,6 @@ void statement(token &recorrido, int &actual, int &numTokens,vector<string> &nom
         while_stmt(recorrido,actual,numTokens,nombres);
     }else if(esteToken == inverso.LLAVEABIERTA){
         block(recorrido,actual,numTokens,nombres);
-    }else{
-        hayErrores =1;
-        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -567,7 +563,7 @@ void declaration(token &recorrido,int &actual,int &numTokens,vector<string> &nom
     }else if(esteToken == inverso.IF || esteToken== inverso.FOR || esteToken == inverso.PRINT || esteToken == inverso.RETURN
             || esteToken == inverso.WHILE || esteToken == inverso.LLAVEABIERTA || esteToken == inverso.TRUE || esteToken == inverso.FALSE
             || esteToken == inverso.NULO || esteToken == inverso.NUMERO || esteToken == inverso.CADENA || esteToken == inverso.IDENTIFICADOR
-            || esteToken == inverso.PARENTESISABIERTO || esteToken == inverso.BANG){
+            || esteToken == inverso.PARENTESISABIERTO || esteToken == inverso.BANG || esteToken == inverso.RESTA){
         statement(recorrido,actual,numTokens,nombres);
         declaration(recorrido,actual,numTokens,nombres);
     }
@@ -583,7 +579,8 @@ void parsear(token &recorrido,int actual,int numTokens, vector<string> &nombres)
     if(actual>=numTokens && !hayErrores){
         cout<<"sintaxis Correcta\n";
     }else{
-        cout<<"sintaxis Incorrecta\n";
+        hayErrores = 1;
+        cout<<"Error se esperaba fin de archivo pero se encontro: \n"<<nombres[recorrido.elementos[actual].token];
     }
 }
 
