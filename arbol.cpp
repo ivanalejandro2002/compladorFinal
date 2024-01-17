@@ -8,7 +8,7 @@
 using namespace std;
 bool hayErrores;
 decodificador inverso;
-
+tipoSimbolo tradSimbolo;
 void arbolmatch(token &tt,int &actual,int fin, int esperado,vector<string> &nombres){
     if(actual<=fin && tt.elementos[actual].token == esperado){
         actual++;
@@ -563,8 +563,7 @@ void arboldeclaration(token &recorrido,int &actual,int &numTokens,vector<string>
         }
         nodoArbol *nuevo = new nodoArbol(inverso.FUN,1,0,++cantfunciones,nodo);
         nodo->hijos.push_back(nuevo);
-        nodo= nuevo;
-        arbolfun_decl(recorrido,actual,numTokens,nombres,nodo);
+        arbolfun_decl(recorrido,actual,numTokens,nombres,nuevo);
         arboldeclaration(recorrido,actual,numTokens,nombres,nodo);
     }else if(esteToken == inverso.VAR){
         nodoArbol *nuevo = new nodoArbol(inverso.VAR,1,0,nodo->padre->funcion,nodo);
@@ -580,16 +579,15 @@ void arboldeclaration(token &recorrido,int &actual,int &numTokens,vector<string>
     }
 }
 void arbolprogram(token &recorrido,int &actual, int &numTokens, vector<string> &nombres, nodoArbol *nodo){
-    nodoArbol *nuevo = new nodoArbol(-1,0,0,0,nodo);
-    nodo = nuevo;
-    arboldeclaration(recorrido,actual,numTokens,nombres,nodo);
+    nodoArbol *nuevo = new nodoArbol(tradSimbolo.PROG,0,0,0,nodo);
+    arboldeclaration(recorrido,actual,numTokens,nombres,nuevo);
     
 }
 
 nodoArbol *arbolPrograma;
 
 void arbolparsear(token &recorrido,int actual,int numTokens, vector<string> &nombres){
-    arbolPrograma = new nodoArbol(-1,0,0,0,nullptr);
+    arbolPrograma = new nodoArbol(tradSimbolo.PROG,0,0,0,nullptr);
     nodoArbol *nodoPrograma =arbolPrograma;
     arbolprogram(recorrido,actual,numTokens,nombres,nodoPrograma);
     if(actual>=numTokens && !hayErrores){

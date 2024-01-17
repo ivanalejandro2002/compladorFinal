@@ -59,6 +59,9 @@ void parameters(token &recorrido, int &actual, int &numTokens,vector<string> &no
     if(esteToken == inverso.IDENTIFICADOR){
         match(recorrido,actual,numTokens,inverso.IDENTIFICADOR,nombres);
         parameters_2(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -74,13 +77,15 @@ void parameters_opc(token &recorrido, int &actual, int &numTokens,vector<string>
 void function(token &recorrido, int &actual, int &numTokens,vector<string> &nombres){
     if(hayErrores)return;
     int esteToken = recorrido.elementos[actual].token;
-
     if(esteToken == inverso.IDENTIFICADOR){
         match(recorrido,actual,numTokens,inverso.IDENTIFICADOR,nombres);
         match(recorrido,actual,numTokens,inverso.PARENTESISABIERTO,nombres);
         parameters_opc(recorrido,actual,numTokens,nombres);
         match(recorrido,actual,numTokens,inverso.PARENTESISCERRADO,nombres);
         block(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -104,6 +109,9 @@ void primary(token &recorrido, int &actual, int &numTokens,vector<string> &nombr
         match(recorrido,actual,numTokens,inverso.PARENTESISABIERTO,nombres);
         expression(recorrido,actual,numTokens,nombres);
         match(recorrido,actual,numTokens,inverso.PARENTESISCERRADO,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -127,6 +135,9 @@ void call(token &recorrido, int &actual, int &numTokens,vector<string> &nombres)
             || esteToken == inverso.CADENA || esteToken == inverso.IDENTIFICADOR || esteToken == inverso.PARENTESISABIERTO){
         primary(recorrido,actual,numTokens,nombres);
         call_2(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -143,6 +154,9 @@ void unary(token &recorrido, int &actual, int &numTokens,vector<string> &nombres
     }else if(esteToken == inverso.TRUE || esteToken == inverso.FALSE || esteToken == inverso.NULO || esteToken == inverso.NUMERO
             || esteToken == inverso.CADENA || esteToken == inverso.IDENTIFICADOR || esteToken == inverso.PARENTESISABIERTO){
         call(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -170,6 +184,9 @@ void factor(token &recorrido, int &actual, int &numTokens,vector<string> &nombre
             || esteToken == inverso.BANG || esteToken == inverso.RESTA){
         unary(recorrido,actual,numTokens,nombres);
         factor_2(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -197,6 +214,9 @@ void term(token &recorrido, int &actual, int &numTokens,vector<string> &nombres)
             || esteToken == inverso.BANG || esteToken == inverso.RESTA){
         factor(recorrido,actual,numTokens,nombres);
         term_2(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -232,6 +252,9 @@ void comparisson(token &recorrido, int &actual, int &numTokens,vector<string> &n
             || esteToken == inverso.BANG || esteToken == inverso.RESTA){
         term(recorrido,actual,numTokens,nombres);
         comparisson_2(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -259,6 +282,9 @@ void equality(token &recorrido, int &actual, int &numTokens,vector<string> &nomb
             || esteToken == inverso.BANG || esteToken == inverso.RESTA){
         comparisson(recorrido,actual,numTokens,nombres);
         equality_2(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -282,6 +308,9 @@ void logic_and(token &recorrido, int &actual, int &numTokens,vector<string> &nom
             || esteToken == inverso.BANG || esteToken == inverso.RESTA){
         equality(recorrido,actual,numTokens,nombres);
         logic_and_2(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -305,6 +334,9 @@ void logic_or(token &recorrido, int &actual, int &numTokens,vector<string> &nomb
             || esteToken == inverso.BANG || esteToken == inverso.RESTA){
         logic_and(recorrido,actual,numTokens,nombres);
         logic_or_2(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -327,6 +359,9 @@ void assignment(token &recorrido, int &actual, int &numTokens,vector<string> &no
             || esteToken == inverso.BANG || esteToken == inverso.RESTA){
         logic_or(recorrido,actual,numTokens,nombres);
         assignment_opc(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -338,6 +373,9 @@ void expression(token &recorrido, int &actual, int &numTokens,vector<string> &no
             || esteToken == inverso.CADENA || esteToken == inverso.IDENTIFICADOR || esteToken == inverso.PARENTESISABIERTO
             || esteToken == inverso.BANG || esteToken == inverso.RESTA){
         assignment(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -349,6 +387,9 @@ void block(token &recorrido, int &actual, int &numTokens,vector<string> &nombres
         match(recorrido,actual,numTokens,inverso.LLAVEABIERTA,nombres);
         declaration(recorrido,actual,numTokens,nombres);
         match(recorrido,actual,numTokens,inverso.LLAVECERRADA,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -362,6 +403,9 @@ void while_stmt(token &recorrido, int &actual, int &numTokens,vector<string> &no
         expression(recorrido,actual,numTokens,nombres);
         match(recorrido,actual,numTokens,inverso.PARENTESISCERRADO,nombres);
         statement(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -384,6 +428,9 @@ void return_stmt(token &recorrido, int &actual, int &numTokens,vector<string> &n
         match(recorrido,actual,numTokens,inverso.RETURN,nombres);
         return_exp_opc(recorrido,actual,numTokens,nombres);
         match(recorrido,actual,numTokens,inverso.PUNTOCOMA,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -395,6 +442,9 @@ void print_stmt(token &recorrido, int &actual, int &numTokens,vector<string> &no
         match(recorrido,actual,numTokens,inverso.PRINT,nombres);
         expression(recorrido,actual,numTokens,nombres);
         match(recorrido,actual,numTokens,inverso.PUNTOCOMA,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -419,6 +469,9 @@ void if_stmt(token &recorrido, int &actual, int &numTokens,vector<string> &nombr
         match(recorrido,actual,numTokens,inverso.PARENTESISCERRADO,nombres);
         statement(recorrido,actual,numTokens,nombres);
         else_statement(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -444,6 +497,9 @@ void for_stmt_2(token &recorrido, int &actual, int &numTokens,vector<string> &no
         match(recorrido,actual,numTokens,inverso.PUNTOCOMA,nombres);
     }else if(esteToken == inverso.PUNTOCOMA){
         match(recorrido,actual,numTokens,inverso.PUNTOCOMA,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -459,6 +515,9 @@ void for_stmt_1(token &recorrido, int &actual, int &numTokens,vector<string> &no
         expr_stmt(recorrido,actual,numTokens,nombres);
     }else if(esteToken == inverso.PUNTOCOMA){
         match(recorrido,actual,numTokens,inverso.PUNTOCOMA,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -475,6 +534,9 @@ void for_stmt(token &recorrido, int &actual, int &numTokens,vector<string> &nomb
         for_stmt_3(recorrido,actual,numTokens,nombres);
         match(recorrido,actual,numTokens,inverso.PARENTESISCERRADO,nombres);
         statement(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -487,6 +549,9 @@ void expr_stmt(token &recorrido, int &actual, int &numTokens,vector<string> &nom
 
         expression(recorrido,actual,numTokens,nombres);
         match(recorrido,actual,numTokens,inverso.PUNTOCOMA,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
@@ -510,6 +575,9 @@ void statement(token &recorrido, int &actual, int &numTokens,vector<string> &nom
         while_stmt(recorrido,actual,numTokens,nombres);
     }else if(esteToken == inverso.LLAVEABIERTA){
         block(recorrido,actual,numTokens,nombres);
+    }else{
+        hayErrores = 1;
+        cout<<"Error: no se esperaba "<<nombres[recorrido.elementos[actual].token]<<" "<<recorrido.elementos[actual].lexema;
     }
 }
 
