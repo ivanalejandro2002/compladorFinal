@@ -645,7 +645,7 @@ void program(token &recorrido,int &actual, int &numTokens, vector<string> &nombr
 void parsear(token &recorrido,int actual,int numTokens, vector<string> &nombres){
     program(recorrido,actual,numTokens,nombres);
     if(actual>=numTokens && !hayErrores){
-        cout<<"sintaxis Correcta\n";
+        //cout<<"sintaxis Correcta\n";
     }else{
         hayErrores = 1;
         cout<<"Error se esperaba fin de archivo pero se encontro: \n"<<nombres[recorrido.elementos[actual].token];

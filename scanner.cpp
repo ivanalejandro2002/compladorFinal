@@ -8,6 +8,7 @@
 #include "automata.cpp"
 #include "token.cpp"
 #include "sintaxis.cpp"
+#include "arbol.cpp"
 using namespace std;
 
 int main(int argc,char *argv[]){
@@ -51,6 +52,8 @@ int main(int argc,char *argv[]){
         }
         hayErrores = 0;
         parsear(registro_Tokens,registro_Tokens.indice_inicial,registro_Tokens.indice_final,nombres);
+        arbolparsear(registro_Tokens,registro_Tokens.indice_inicial,registro_Tokens.indice_final,nombres);
+        //arbolchecar(arbolPrograma);
         if(errores_general)cout<<"El programa termino con errores\n";
         if(hayErrores)return 0;
         
