@@ -2,6 +2,7 @@
 #define arbolnodo_cabecera
 #include <iostream>
 #include <vector>
+#include <map>
 using namespace std;
 int cantfunciones = 0;
 struct nodoArbol{
@@ -10,13 +11,22 @@ struct nodoArbol{
     int funcion;
     bool isStatement;
     bool isExpression;
+    bool nuevo;
     double valor;
+    int es_entero;
     string nombre;
+    string vstring;
     vector<nodoArbol *> hijos;
     nodoArbol *padre;
 
-    nodoArbol(int v,bool esstat,bool esexp,int idfuncion, nodoArbol *papa):token(v),isStatement(esstat),isExpression(esexp),hijos(vector<nodoArbol *>(0)),funcion(idfuncion),padre(papa){}
+    nodoArbol(int v,bool esstat,bool esexp,int idfuncion, nodoArbol *papa):token(v),isStatement(esstat),isExpression(esexp),hijos(vector<nodoArbol *>(0)),funcion(idfuncion),padre(papa),semantico(0),valor(0),nombre(""),nuevo(0){}
 };
+
+struct datoMapa{
+    int funcion;
+    string nombre;
+};
+map<datoMapa,bool> existencias;
 
 struct tipoSimbolo{
     int PROG;
@@ -39,7 +49,10 @@ struct tipoSimbolo{
     int NOT;
     int DOT;
     int PARAM;
-    tipoSimbolo():PROG(0),FUN(1),ASIG(2),SUMA(3),RESTA(4),MULT(5),DIV(6),AND(7),OR(8),PRINT(9),RETURN(10),EXPR(11),MAYOR(12),MENOR(13),IGUAL(14),DIFERENTE(15),NOT(16),DOT(17),PARAM(18){};
+    int FOR;
+    int IF;
+    int WHILE;
+    tipoSimbolo():PROG(0),FUN(1),ASIG(2),SUMA(3),RESTA(4),MULT(5),DIV(6),AND(7),OR(8),PRINT(9),RETURN(10),EXPR(11),MAYOR(12),MENOR(13),IGUAL(14),DIFERENTE(15),NOT(16),DOT(17),PARAM(18),FOR(19),IF(20),WHILE(21){};
 };
 
 #endif

@@ -266,8 +266,8 @@ void equality_2(token &recorrido, int &actual, int &numTokens,vector<string> &no
         match(recorrido,actual,numTokens,inverso.NOIGUAL,nombres);
         comparisson(recorrido,actual,numTokens,nombres);
         equality_2(recorrido,actual,numTokens,nombres);
-    }else if(esteToken == inverso.IGUAL){
-        match(recorrido,actual,numTokens,inverso.IGUAL,nombres);
+    }else if(esteToken == inverso.IGUALCOMP){
+        match(recorrido,actual,numTokens,inverso.IGUALCOMP,nombres);
         comparisson(recorrido,actual,numTokens,nombres);
         equality_2(recorrido,actual,numTokens,nombres);
     }

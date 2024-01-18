@@ -25,7 +25,7 @@ struct decodificador{
     int BANG;
     int NOIGUAL;
     int IGUAL;
-    int IGUALASIG;
+    int IGUALCOMP;
     int SUMA;
     int RESTA;
     int MULTIPLICAR;
@@ -42,7 +42,7 @@ struct decodificador{
     int CADENA;
     decodificador():AND(1),ELSE(2),FALSE(3),FOR(4),FUN(5),IF(6),NULO(7),OR(8),PRINT(9),RETURN(10),
                     TRUE(11),VAR(12),WHILE(13),MENOR(14),MENORIGUAL(15),MAYOR(16),MAYORIGUAL(17),
-                    BANG(18),NOIGUAL(19),IGUAL(20),IGUALASIG(21),SUMA(22),RESTA(23),MULTIPLICAR(24),
+                    BANG(18),NOIGUAL(19),IGUAL(20),IGUALCOMP(21),SUMA(22),RESTA(23),MULTIPLICAR(24),
                     DIVIDIR(25),LLAVEABIERTA(26),LLAVECERRADA(27),PARENTESISABIERTO(28),PARENTESISCERRADO(29),
                     COMA(30),PUNTO(31),PUNTOCOMA(32),NUMERO(33),IDENTIFICADOR(34),CADENA(35){};
 };
