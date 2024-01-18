@@ -120,169 +120,254 @@ void arbolcall_2(token &recorrido, int &actual, int &numTokens,vector<string> &n
     }
 }
 
-void arbolcall(token &recorrido, int &actual, int &numTokens,vector<string> &nombres){
+void arbolcall(token &recorrido, int &actual, int &numTokens,vector<string> &nombres,nodoArbol *nodo){
     if(hayErrores)return;
     int esteToken = recorrido.elementos[actual].token;
 
-    if(esteToken == inverso.TRUE || esteToken == inverso.FALSE || esteToken == inverso.NULO || esteToken == inverso.NUMERO
+    if(actual<numTokens &&esteToken == inverso.IDENTIFICADOR && recorrido.elementos[actual+1].token){
+        if(funciones.count(recorrido.elementos[actual].lexema)==0){
+            cout<<"Error: La variable "<<recorrido.elementos[actual].lexema<<" no ha sido definida\n";
+            hayErrores = 1;
+        }
+        nodoArbol *nuevo = new nodoArbol(tradSimbolo.CALL,1,0,nodo->funcion,nodo);
+        nodo->hijos.push_back(nuevo);
+        nuevo->nombre = recorrido.elementos[actual].lexema;
+        arbolmatch(recorrido,actual,numTokens,inverso.IDENTIFICADOR,nombres);
+        arbolcall_2(recorrido,actual,numTokens,nombres,nuevo);
+    }else if(esteToken == inverso.TRUE || esteToken == inverso.FALSE || esteToken == inverso.NULO || esteToken == inverso.NUMERO
             || esteToken == inverso.CADENA || esteToken == inverso.IDENTIFICADOR || esteToken == inverso.PARENTESISABIERTO){
-        arbolprimary(recorrido,actual,numTokens,nombres);
-        arbolcall_2(recorrido,actual,numTokens,nombres);
+        arbolprimary(recorrido,actual,numTokens,nombres,nodo);
     }
 }
 
-void arbolunary(token &recorrido, int &actual, int &numTokens,vector<string> &nombres){
+void arbolunary(token &recorrido, int &actual, int &numTokens,vector<string> &nombres,nodoArbol *nodo){
     if(hayErrores)return;
     int esteToken = recorrido.elementos[actual].token;
 
     if(esteToken == inverso.BANG){
+        if(nodo->token!=tradSimbolo.EXPR){
+            cout<<"Error: El operador ! solo puede ser usado con operadores logicos y variables\n";
+            hayErrores = 1;
+        }
+        nodo->negado ^= 1;
         arbolmatch(recorrido,actual,numTokens,inverso.BANG,nombres);
-        arbolunary(recorrido,actual,numTokens,nombres);
+        arbolunary(recorrido,actual,numTokens,nombres,nodo);
     }else if(esteToken == inverso.RESTA){
+
         arbolmatch(recorrido,actual,numTokens,inverso.RESTA,nombres);
-        arbolunary(recorrido,actual,numTokens,nombres);
+        nodo->negativo*=-1;
+
+        arbolunary(recorrido,actual,numTokens,nombres,nodo);
     }else if(esteToken == inverso.TRUE || esteToken == inverso.FALSE || esteToken == inverso.NULO || esteToken == inverso.NUMERO
             || esteToken == inverso.CADENA || esteToken == inverso.IDENTIFICADOR || esteToken == inverso.PARENTESISABIERTO){
-        arbolcall(recorrido,actual,numTokens,nombres);
+        arbolcall(recorrido,actual,numTokens,nombres,nodo);
     }
 }
 
-void arbolfactor_2(token &recorrido, int &actual, int &numTokens,vector<string> &nombres){
+void arbolfactor_2(token &recorrido, int &actual, int &numTokens,vector<string> &nombres,nodoArbol *nodo){
     if(hayErrores)return;
     int esteToken = recorrido.elementos[actual].token;
 
     if(esteToken == inverso.DIVIDIR){
         arbolmatch(recorrido,actual,numTokens,inverso.DIVIDIR,nombres);
-        arbolunary(recorrido,actual,numTokens,nombres);
-        arbolfactor_2(recorrido,actual,numTokens,nombres);
+        nodoArbol *diva = new nodoArbol(tradSimbolo.RESTA,0,1,nodo->funcion,nodo->padre);
+        nodo->padre->hijos[nodo->padre->hijos.size()-1] = diva;
+        diva->hijos.push_back(nodo);
+        nodo->padre = diva;
+        nodoArbol *otro = new nodoArbol(tradSimbolo.EXPR,0,1,diva->funcion,diva);
+        diva->hijos.push_back(otro);
+        arbolunary(recorrido,actual,numTokens,nombres,otro);
+        arbolfactor_2(recorrido,actual,numTokens,nombres,otro);
     }else if(esteToken == inverso.MULTIPLICAR){
+        nodoArbol *mula = new nodoArbol(tradSimbolo.RESTA,0,1,nodo->funcion,nodo->padre);
+        nodo->padre->hijos[nodo->padre->hijos.size()-1] = mula;
+        mula->hijos.push_back(nodo);
+        nodo->padre = mula;
+        nodoArbol *otro = new nodoArbol(tradSimbolo.EXPR,0,1,mula->funcion,mula);
+        mula->hijos.push_back(otro);
         arbolmatch(recorrido,actual,numTokens,inverso.MULTIPLICAR,nombres);
-        arbolunary(recorrido,actual,numTokens,nombres);
-        arbolfactor_2(recorrido,actual,numTokens,nombres);
+        arbolunary(recorrido,actual,numTokens,nombres,otro);
+        arbolfactor_2(recorrido,actual,numTokens,nombres,otro);
     }
 }
 
-void arbolfactor(token &recorrido, int &actual, int &numTokens,vector<string> &nombres){
+void arbolfactor(token &recorrido, int &actual, int &numTokens,vector<string> &nombres,nodoArbol *nodo){
     if(hayErrores)return;
     int esteToken = recorrido.elementos[actual].token;
 
     if(esteToken == inverso.TRUE || esteToken == inverso.FALSE || esteToken == inverso.NULO || esteToken == inverso.NUMERO
             || esteToken == inverso.CADENA || esteToken == inverso.IDENTIFICADOR || esteToken == inverso.PARENTESISABIERTO
             || esteToken == inverso.BANG || esteToken == inverso.RESTA){
-        arbolunary(recorrido,actual,numTokens,nombres);
-        arbolfactor_2(recorrido,actual,numTokens,nombres);
+        arbolunary(recorrido,actual,numTokens,nombres,nodo);
+        arbolfactor_2(recorrido,actual,numTokens,nombres,nodo);
     }
 }
 
-void arbolterm_2(token &recorrido, int &actual, int &numTokens,vector<string> &nombres){
+void arbolterm_2(token &recorrido, int &actual, int &numTokens,vector<string> &nombres,nodoArbol *nodo){
     if(hayErrores)return;
     int esteToken = recorrido.elementos[actual].token;
 
     if(esteToken == inverso.RESTA){
+        while(nodo->padre->isExpression)nodo = nodo->padre;
+        nodoArbol *rasta = new nodoArbol(tradSimbolo.RESTA,0,1,nodo->funcion,nodo->padre);
+        nodo->padre->hijos[nodo->padre->hijos.size()-1] = rasta;
+        rasta->hijos.push_back(nodo);
+        nodo->padre = rasta;
+        nodoArbol *otro = new nodoArbol(tradSimbolo.EXPR,0,1,rasta->funcion,rasta);
+        rasta->hijos.push_back(otro);
         arbolmatch(recorrido,actual,numTokens,inverso.RESTA,nombres);
-        arbolfactor(recorrido,actual,numTokens,nombres);
-        arbolterm_2(recorrido,actual,numTokens,nombres);
+        arbolfactor(recorrido,actual,numTokens,nombres,otro);
+        arbolterm_2(recorrido,actual,numTokens,nombres,otro);
     }else if(esteToken == inverso.SUMA){
+        while(nodo->padre->isExpression)nodo = nodo->padre;
+        nodoArbol *sumo = new nodoArbol(tradSimbolo.SUMA,0,1,nodo->funcion,nodo->padre);
+        nodo->padre->hijos[nodo->padre->hijos.size()-1] = sumo;
+        sumo->hijos.push_back(nodo);
+        nodo->padre = sumo;
+        nodoArbol *otro = new nodoArbol(tradSimbolo.EXPR,0,1,sumo->funcion,sumo);
+        sumo->hijos.push_back(otro);
         arbolmatch(recorrido,actual,numTokens,inverso.SUMA,nombres);
-        arbolfactor(recorrido,actual,numTokens,nombres);
-        arbolterm_2(recorrido,actual,numTokens,nombres);
+        arbolfactor(recorrido,actual,numTokens,nombres,otro);
+        arbolterm_2(recorrido,actual,numTokens,nombres,otro);
     }
 }
 
-void arbolterm(token &recorrido, int &actual, int &numTokens,vector<string> &nombres){
+void arbolterm(token &recorrido, int &actual, int &numTokens,vector<string> &nombres,nodoArbol *nodo){
     if(hayErrores)return;
     int esteToken = recorrido.elementos[actual].token;
 
     if(esteToken == inverso.TRUE || esteToken == inverso.FALSE || esteToken == inverso.NULO || esteToken == inverso.NUMERO
             || esteToken == inverso.CADENA || esteToken == inverso.IDENTIFICADOR || esteToken == inverso.PARENTESISABIERTO
             || esteToken == inverso.BANG || esteToken == inverso.RESTA){
-        arbolfactor(recorrido,actual,numTokens,nombres);
-        arbolterm_2(recorrido,actual,numTokens,nombres);
+        arbolfactor(recorrido,actual,numTokens,nombres,nodo);
+        arbolterm_2(recorrido,actual,numTokens,nombres,nodo);
     }
 }
 
-void arbolcomparisson_2(token &recorrido, int &actual, int &numTokens,vector<string> &nombres){
+void arbolcomparisson_2(token &recorrido, int &actual, int &numTokens,vector<string> &nombres,nodoArbol *nodo){
     if(hayErrores)return;
     int esteToken = recorrido.elementos[actual].token;
 
     if(esteToken == inverso.MAYOR){
         arbolmatch(recorrido,actual,numTokens,inverso.MAYOR,nombres);
-        arbolterm(recorrido,actual,numTokens,nombres);
-        arbolcomparisson_2(recorrido,actual,numTokens,nombres);
+        nodoArbol *mayordomo = new nodoArbol(tradSimbolo.MAYOR,0,1,nodo->funcion,nodo->padre);
+        nodo->padre->hijos[nodo->padre->hijos.size()-1] = mayordomo;
+        mayordomo->hijos.push_back(nodo);
+        nodo->padre = mayordomo;
+        nodoArbol *otro = new nodoArbol(tradSimbolo.EXPR,0,1,mayordomo->funcion,mayordomo);
+        mayordomo->hijos.push_back(otro);
+        arbolterm(recorrido,actual,numTokens,nombres,otro);
+        arbolcomparisson_2(recorrido,actual,numTokens,nombres,otro);
     }else if(esteToken == inverso.MAYORIGUAL){
+        nodoArbol *comodo = new nodoArbol(tradSimbolo.MAYOR,0,1,nodo->funcion,nodo->padre);
+        nodo->padre->hijos[nodo->padre->hijos.size()-1] = comodo;
+        comodo->hijos.push_back(nodo);
+        nodo->padre = comodo;
+        nodoArbol *otro = new nodoArbol(tradSimbolo.EXPR,0,1,comodo->funcion,comodo);
+        comodo->hijos.push_back(otro);
         arbolmatch(recorrido,actual,numTokens,inverso.MAYORIGUAL,nombres);
-        arbolterm(recorrido,actual,numTokens,nombres);
-        arbolcomparisson_2(recorrido,actual,numTokens,nombres);
+        arbolterm(recorrido,actual,numTokens,nombres,otro);
+        arbolcomparisson_2(recorrido,actual,numTokens,nombres,otro);
     }if(esteToken == inverso.MENOR){
+        nodoArbol *chamaco = new nodoArbol(tradSimbolo.MAYOR,0,1,nodo->funcion,nodo->padre);
+        nodo->padre->hijos[nodo->padre->hijos.size()-1] = chamaco;
+        chamaco->hijos.push_back(nodo);
+        nodo->padre = chamaco;
+        nodoArbol *otro = new nodoArbol(tradSimbolo.EXPR,0,1,chamaco->funcion,chamaco);
+        chamaco->hijos.push_back(otro);
         arbolmatch(recorrido,actual,numTokens,inverso.MENOR,nombres);
-        arbolterm(recorrido,actual,numTokens,nombres);
-        arbolcomparisson_2(recorrido,actual,numTokens,nombres);
+        arbolterm(recorrido,actual,numTokens,nombres,otro);
+        arbolcomparisson_2(recorrido,actual,numTokens,nombres,otro);
     }if(esteToken == inverso.MENORIGUAL){
+        nodoArbol *ligartija = new nodoArbol(tradSimbolo.MAYOR,0,1,nodo->funcion,nodo->padre);
+        nodo->padre->hijos[nodo->padre->hijos.size()-1] = ligartija;
+        ligartija->hijos.push_back(nodo);
+        nodo->padre = ligartija;
+        nodoArbol *otro = new nodoArbol(tradSimbolo.EXPR,0,1,ligartija->funcion,ligartija);
+        ligartija->hijos.push_back(otro);
         arbolmatch(recorrido,actual,numTokens,inverso.MENORIGUAL,nombres);
-        arbolterm(recorrido,actual,numTokens,nombres);
-        arbolcomparisson_2(recorrido,actual,numTokens,nombres);
+        arbolterm(recorrido,actual,numTokens,nombres,otro);
+        arbolcomparisson_2(recorrido,actual,numTokens,nombres,otro);
     }
 }
 
-void arbolcomparisson(token &recorrido, int &actual, int &numTokens,vector<string> &nombres){
+void arbolcomparisson(token &recorrido, int &actual, int &numTokens,vector<string> &nombres,nodoArbol *nodo){
     if(hayErrores)return;
     int esteToken = recorrido.elementos[actual].token;
 
     if(esteToken == inverso.TRUE || esteToken == inverso.FALSE || esteToken == inverso.NULO || esteToken == inverso.NUMERO
             || esteToken == inverso.CADENA || esteToken == inverso.IDENTIFICADOR || esteToken == inverso.PARENTESISABIERTO
             || esteToken == inverso.BANG || esteToken == inverso.RESTA){
-        arbolterm(recorrido,actual,numTokens,nombres);
-        arbolcomparisson_2(recorrido,actual,numTokens,nombres);
+        arbolterm(recorrido,actual,numTokens,nombres,nodo);
+        arbolcomparisson_2(recorrido,actual,numTokens,nombres,nodo);
     }
 }
 
-void arbolequality_2(token &recorrido, int &actual, int &numTokens,vector<string> &nombres){
+void arbolequality_2(token &recorrido, int &actual, int &numTokens,vector<string> &nombres,nodoArbol *nodo){
     if(hayErrores)return;
     int esteToken = recorrido.elementos[actual].token;
 
     if(esteToken == inverso.NOIGUAL){
+        nodoArbol *nogal = new nodoArbol(tradSimbolo.DIFERENTE,0,1,nodo->funcion,nodo->padre);
+        nodo->padre->hijos[nodo->padre->hijos.size()-1] = nogal;
+        nogal->hijos.push_back(nodo);
+        nodo->padre = nogal;
+        nodoArbol *otro = new nodoArbol(tradSimbolo.EXPR,0,1,nogal->funcion,nogal);
+        nogal->hijos.push_back(otro);
         arbolmatch(recorrido,actual,numTokens,inverso.NOIGUAL,nombres);
-        arbolcomparisson(recorrido,actual,numTokens,nombres);
-        arbolequality_2(recorrido,actual,numTokens,nombres);
+        arbolcomparisson(recorrido,actual,numTokens,nombres,otro);
+        arbolequality_2(recorrido,actual,numTokens,nombres,otro);
     }else if(esteToken == inverso.IGUALCOMP){
+        nodoArbol *iguanas = new nodoArbol(tradSimbolo.DIFERENTE,0,1,nodo->funcion,nodo->padre);
+        nodo->padre->hijos[nodo->padre->hijos.size()-1] = iguanas;
+        iguanas->hijos.push_back(nodo);
+        nodo->padre = iguanas;
+        nodoArbol *otro = new nodoArbol(tradSimbolo.EXPR,0,1,iguanas->funcion,iguanas);
+        iguanas->hijos.push_back(otro);
         arbolmatch(recorrido,actual,numTokens,inverso.IGUALCOMP,nombres);
-        arbolcomparisson(recorrido,actual,numTokens,nombres);
-        arbolequality_2(recorrido,actual,numTokens,nombres);
+        arbolcomparisson(recorrido,actual,numTokens,nombres,otro);
+        arbolequality_2(recorrido,actual,numTokens,nombres,otro);
     }
 }
 
-void arbolequality(token &recorrido, int &actual, int &numTokens,vector<string> &nombres){
+void arbolequality(token &recorrido, int &actual, int &numTokens,vector<string> &nombres,nodoArbol *nodo){
     if(hayErrores)return;
     int esteToken = recorrido.elementos[actual].token;
 
     if(esteToken == inverso.TRUE || esteToken == inverso.FALSE || esteToken == inverso.NULO || esteToken == inverso.NUMERO
             || esteToken == inverso.CADENA || esteToken == inverso.IDENTIFICADOR || esteToken == inverso.PARENTESISABIERTO
             || esteToken == inverso.BANG || esteToken == inverso.RESTA){
-        arbolcomparisson(recorrido,actual,numTokens,nombres);
-        arbolequality_2(recorrido,actual,numTokens,nombres);
+        arbolcomparisson(recorrido,actual,numTokens,nombres,nodo);
+        arbolequality_2(recorrido,actual,numTokens,nombres,nodo);
     }
 }
 
-void arbollogic_and_2(token &recorrido, int &actual, int &numTokens,vector<string> &nombres){
+void arbollogic_and_2(token &recorrido, int &actual, int &numTokens,vector<string> &nombres,nodoArbol *nodo){
     if(hayErrores)return;
     int esteToken = recorrido.elementos[actual].token;
 
     if(esteToken == inverso.AND){
         arbolmatch(recorrido,actual,numTokens,inverso.AND,nombres);
-        arbolequality(recorrido,actual,numTokens,nombres);
-        arbollogic_and_2(recorrido,actual,numTokens,nombres);
+        nodoArbol *andy = new nodoArbol(tradSimbolo.AND,0,1,nodo->funcion,nodo->padre);
+        nodo->padre->hijos[nodo->padre->hijos.size()-1] = andy;
+        andy->hijos.push_back(nodo);
+        nodo->padre = andy;
+        nodoArbol *otro = new nodoArbol(tradSimbolo.EXPR,0,1,andy->funcion,andy);
+        andy->hijos.push_back(otro);
+        arbolequality(recorrido,actual,numTokens,nombres,otro);
+        arbollogic_and_2(recorrido,actual,numTokens,nombres,otro);
     }
 }
 
-void arbollogic_and(token &recorrido, int &actual, int &numTokens,vector<string> &nombres){
+void arbollogic_and(token &recorrido, int &actual, int &numTokens,vector<string> &nombres,nodoArbol *nodo){
     if(hayErrores)return;
     int esteToken = recorrido.elementos[actual].token;
 
     if(esteToken == inverso.TRUE || esteToken == inverso.FALSE || esteToken == inverso.NULO || esteToken == inverso.NUMERO
             || esteToken == inverso.CADENA || esteToken == inverso.IDENTIFICADOR || esteToken == inverso.PARENTESISABIERTO
             || esteToken == inverso.BANG || esteToken == inverso.RESTA){
-        arbolequality(recorrido,actual,numTokens,nombres);
-        arbollogic_and_2(recorrido,actual,numTokens,nombres);
+        arbolequality(recorrido,actual,numTokens,nombres,nodo);
+        arbollogic_and_2(recorrido,actual,numTokens,nombres,nodo);
     }
 }
 
@@ -293,9 +378,11 @@ void arbollogic_or_2(token &recorrido, int &actual, int &numTokens,vector<string
     if(esteToken == inverso.OR){
         arbolmatch(recorrido,actual,numTokens,inverso.OR,nombres);
         nodoArbol *oreo = new nodoArbol(tradSimbolo.OR,0,1,nodo->funcion,nodo->padre);
-        nodo->padre->hijos.push_back(nodo);
+        nodo->padre->hijos[nodo->padre->hijos.size()-1] = oreo;
         oreo->hijos.push_back(nodo);
+        nodo->padre = oreo;
         nodoArbol *otro = new nodoArbol(tradSimbolo.EXPR,0,1,oreo->funcion,oreo);
+        oreo->hijos.push_back(otro);
         arbollogic_and(recorrido,actual,numTokens,nombres,otro);
         arbollogic_or_2(recorrido,actual,numTokens,nombres,otro);
     }
@@ -322,9 +409,10 @@ void arbolassignment_opc(token &recorrido, int &actual, int &numTokens,vector<st
             cout<<"Error: La asignación solo se puede hacer a variables\n";
             hayErrores = 1;
         }
-        nodoArbol *igualar = new nodoArbol(tradSimbolo.IGUAL,0,1,nodo->padre->funcion,nodo->padre);
+        nodoArbol *igualar = new nodoArbol(tradSimbolo.IGUAL,1,0,nodo->padre->funcion,nodo->padre);
         nodo->padre->hijos[nodo->padre->hijos.size()-1] = igualar;
         igualar->hijos.push_back(nodo);
+        nodo->padre = igualar;
         arbolmatch(recorrido,actual,numTokens,inverso.IGUAL,nombres);
         nodoArbol *termino = new nodoArbol(tradSimbolo.EXPR,0,1,igualar->funcion,igualar);
         igualar->hijos.push_back(termino);
@@ -573,6 +661,8 @@ void arbolvar_init(token &recorrido, int &actual, int &numTokens,vector<string> 
         nodoArbol *nuevo = new nodoArbol(tradSimbolo.ASIG,1,0,nodo->padre->funcion,nodo->padre);
         nodo->padre->hijos[nodo->padre->hijos.size()-1] = nuevo;
         nuevo->hijos.push_back(nodo);
+        nodo->padre = nuevo;
+        nuevo->declarado = 1;
         arbolmatch(recorrido,actual,numTokens,inverso.IGUAL,nombres);
         nodoArbol *asignacion = new nodoArbol(tradSimbolo.EXPR,0,1,nodo->padre->funcion,nuevo);
         nuevo->hijos.push_back(asignacion);

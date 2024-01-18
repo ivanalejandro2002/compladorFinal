@@ -10,16 +10,19 @@ struct nodoArbol{
     int semantico;
     int funcion;
     bool isStatement;
+    bool negativo;
     bool isExpression;
     bool nuevo;
     double valor;
+    bool declarado;
     int es_entero;
+    bool negado;
     string nombre;
     string vstring;
     vector<nodoArbol *> hijos;
     nodoArbol *padre;
 
-    nodoArbol(int v,bool esstat,bool esexp,int idfuncion, nodoArbol *papa):token(v),isStatement(esstat),isExpression(esexp),hijos(vector<nodoArbol *>(0)),funcion(idfuncion),padre(papa),semantico(0),valor(0),nombre(""),nuevo(0){}
+    nodoArbol(int v,bool esstat,bool esexp,int idfuncion, nodoArbol *papa):token(v),isStatement(esstat),isExpression(esexp),hijos(vector<nodoArbol *>(0)),funcion(idfuncion),padre(papa),semantico(0),valor(0),nombre(""),nuevo(0),declarado(0),negado(0),negativo(1){}
 };
 
 struct datoMapa{
@@ -52,7 +55,9 @@ struct tipoSimbolo{
     int FOR;
     int IF;
     int WHILE;
-    tipoSimbolo():PROG(0),FUN(1),ASIG(2),SUMA(3),RESTA(4),MULT(5),DIV(6),AND(7),OR(8),PRINT(9),RETURN(10),EXPR(11),MAYOR(12),MENOR(13),IGUAL(14),DIFERENTE(15),NOT(16),DOT(17),PARAM(18),FOR(19),IF(20),WHILE(21){};
+    int CALL;
+    tipoSimbolo():PROG(0),FUN(1),ASIG(2),SUMA(3),RESTA(4),MULT(5),DIV(6),AND(7),OR(8),PRINT(9),RETURN(10),EXPR(11),MAYOR(12),MENOR(13),IGUAL(14),DIFERENTE(15),NOT(16),DOT(17),PARAM(18),FOR(19),IF(20),WHILE(21),CALL(22){};
 };
 
+map<string,nodoArbol> funciones;
 #endif
