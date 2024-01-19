@@ -139,7 +139,7 @@ void arbolprimary(token &recorrido, int &actual, int &numTokens,vector<string> &
         float decimal = 0;
         float indecimal = 1;
         float exponente = 0;
-        bool negativo = 1;
+        int negativo = 1;
         while(i<aux.size() && aux[i]>='0' && aux[i]<='9'){
             valor*=10;
             valor+=aux[i]-'0';
@@ -155,7 +155,10 @@ void arbolprimary(token &recorrido, int &actual, int &numTokens,vector<string> &
         }
         if(i<aux.size() && aux[i]=='E'){
             i++;
-            if(aux[i]=='-')negativo*=-1;
+            if(aux[i]=='-'){
+                negativo*=-1;
+                i++;
+            }
             exponente = 0;
             while(i<aux.size() && aux[i]>='0' && aux[i]<='9'){
                 exponente*=10;
@@ -163,7 +166,8 @@ void arbolprimary(token &recorrido, int &actual, int &numTokens,vector<string> &
                 i++;
             }
         }
-        nodo->valor = negativo*(valor+decimal)*pow(10,exponente);
+        nodo->valor = (valor+decimal)*pow(10,negativo*exponente);
+        nodo->es_entero = 1;
         arbolmatch(recorrido,actual,numTokens,inverso.NUMERO,nombres);
     }else if(esteToken == inverso.CADENA){
         nodo->es_entero = 2;
@@ -243,14 +247,14 @@ void arbolunary(token &recorrido, int &actual, int &numTokens,vector<string> &no
             cout<<"Error: El operador ! solo puede ser usado con operadores logicos y variables\n";
             hayErrores = 1;
         }
-        nodo->negado ^= 1;
+        nodoArbol *nope = new nodoArbol(tradSimbolo.NOT,0,1,nodo->funcion,nodo);
+        nodo->hijos.push_back(nope);
         arbolmatch(recorrido,actual,numTokens,inverso.BANG,nombres);
-        arbolunary(recorrido,actual,numTokens,nombres,nodo);
+        arbolunary(recorrido,actual,numTokens,nombres,nope);
     }else if(esteToken == inverso.RESTA){
-
+        cout<<nodo->token<<","<<nodo->padre->hijos[0]->nombre<<"\n";
         arbolmatch(recorrido,actual,numTokens,inverso.RESTA,nombres);
-        nodo->negativo*=-1;
-
+        nodo->negativo=-1;
         arbolunary(recorrido,actual,numTokens,nombres,nodo);
     }else if(esteToken == inverso.TRUE || esteToken == inverso.FALSE || esteToken == inverso.NULO || esteToken == inverso.NUMERO
             || esteToken == inverso.CADENA || esteToken == inverso.IDENTIFICADOR || esteToken == inverso.PARENTESISABIERTO){
@@ -561,7 +565,7 @@ void arbolwhile_stmt(token &recorrido, int &actual, int &numTokens,vector<string
         nodo->hijos.push_back(condicion);
         arbolexpression(recorrido,actual,numTokens,nombres,condicion);
         arbolmatch(recorrido,actual,numTokens,inverso.PARENTESISCERRADO,nombres);
-        nodoArbol *acciones = new nodoArbol(tradSimbolo.PROG,0,1,nodo->padre->funcion,nodo);
+        nodoArbol *acciones = new nodoArbol(tradSimbolo.PROG,1,0,nodo->padre->funcion,nodo);
         nodo->hijos.push_back(acciones);
         arbolstatement(recorrido,actual,numTokens,nombres,acciones);
     }
@@ -856,7 +860,7 @@ void arbolparsear(token &recorrido,int actual,int numTokens, vector<string> &nom
 }
 
 void arbolchecar(nodoArbol *nodo){
-    cout<<nodo->token<<","<<nodo->funcion<<","<<nodo->nombre<<", ["<<nodo->es_entero<<"]: "<<nodo->valor<<",'"<<nodo->vstring<<"'\n";
+    cout<<nodo->token<<","<<nodo->funcion<<","<<nodo->nombre<<", ["<<nodo->es_entero<<","<<nodo->negativo<<"]: "<<nodo->valor<<",'"<<nodo->vstring<<"'\n";
     for(int i=0;i<nodo->hijos.size();i++){
         arbolchecar(nodo->hijos[i]);
     }
