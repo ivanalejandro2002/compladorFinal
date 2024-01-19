@@ -81,7 +81,7 @@ void correr(nodoArbol *actual){
                 }
                 break;
             case 21:
-                correr(actual->hijos[1]);
+                correr(actual->hijos[0]);
                 if(actual->hijos[0]->es_entero){
                     if(actual->hijos[0]->valor!=0){
                         correr(actual->hijos[1]);
