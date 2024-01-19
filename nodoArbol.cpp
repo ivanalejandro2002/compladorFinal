@@ -11,7 +11,7 @@ struct nodoArbol{
     int semantico;
     int funcion;
     bool isStatement;
-    bool negativo;
+    int negativo;
     bool isExpression;
     bool nuevo;
     double valor;
